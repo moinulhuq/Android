@@ -1,79 +1,42 @@
 package com.example.moinfeha.myapplication;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.TextView;
+import android.util.Log;
+import android.webkit.WebView;
+import java.io.FileInputStream;
 
 public class MainActivity extends AppCompatActivity {
+
+    // ❌ Hardcoded secret (Aikido will flag)
+    private static final String API_KEY = "12345-SECRET-KEY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        // ❌ Insecure logging
+        Log.d("DEBUG", "Loaded API key: " + API_KEY);
 
-	/*
-	|--------------------------------------------------------------------------
-	| "Hello World" program
-	|--------------------------------------------------------------------------
-	| 1. It will find Button from "content_main.xml".
-	| 2. Adding event with button using "setOnClickListener".
-	| 3. Then find TextView from "content_main.xml".
-	| 4. Then assign the text in "msgTextView" from "string.xml" hello.
-	| 5. Afetr that hide the "myButton" from the canvas.
-	|
-	*/
+        // ❌ Unsafe WebView configuration
+        WebView webView = new WebView(this);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl("https://example.com");
 
-        final Button myButton = (Button) findViewById(R.id.button);
-        myButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextView msgTextView = (TextView) findViewById(R.id.textView);
-                msgTextView.setText(R.string.hello);
-                myButton.setVisibility(View.INVISIBLE);
-            }
-        });
-	
-	/*----------------------------------------------------------------------------*/
-	
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        // ❌ Unsafe file access (path traversal pattern)
+        String filename = getIntent().getStringExtra("file");
+        try {
+            FileInputStream fis = new FileInputStream(filename);
+        } catch (Exception e) {
+            Log.e("ERROR", "File error: " + e.getMessage());
         }
 
-        return super.onOptionsItemSelected(item);
+        // ❌ Dangerous command execution pattern
+        try {
+            Runtime.getRuntime().exec("ping -c 1 " + filename);
+        } catch (Exception e) {
+            Log.e("ERROR", "Command error: " + e.getMessage());
+        }
     }
 }
